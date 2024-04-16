@@ -1,0 +1,22 @@
+{
+    "testdata": {
+        "directory": "/mnt/e/Datasets/TestDateset_BMCT/",
+        "audio_path": "/mnt/e/Datasets/TestDateset_BMCT/Testdata_audio"
+    },
+    "ShipsEar": {
+        "directory": "/mnt/e/Datasets/ShipsEar/",
+        "audio_path": "/mnt/e/Datasets/ShipsEar/ShipsEar_audio"
+    },
+    "DeepShip": {
+        "directory": "/mnt/e/Datasets/DeepShip/",
+        "audio_path": "/mnt/e/Datasets/DeepShip/DeepShip_audio"
+    },
+    "TwoBill": {
+        "directory": "/mnt/e/Datasets/TwoBill/traindata",
+        "audio_path": "/mnt/e/Datasets/TwoBill/traindata/twoBill_audio"
+    },
+    "TwoBillTest": {
+        "directory": "/mnt/e/Datasets/TwoBill/testdata",
+        "audio_path": "/mnt/e/Datasets/TwoBill/testdata/audio"
+    }
+}
