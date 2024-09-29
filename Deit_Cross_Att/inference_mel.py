@@ -8,10 +8,10 @@ from datasets.bases import load_image
 if __name__ == "__main__":
     #>>>>>>>>>>>>>>>>>>>>[FIXME]>>>>>>>>>>>>>>>>>>>> 
     # config file and checkpoint file
-    input_img_path = "/mnt/e/Datasets/TwoBill/testdata/mel/unknown/a10437.png"
+    input_img_path = r"C:\Users\june\Workspace\Bidirectional-matching-cross-transfer\Deit_Cross_Att\data\ShipsEar2DeepShip\source_imgs\images\Cargo\6.png"
 
     config_file = "configs/pretrain.yml"
-    checkpoint = "../logs/pretrain/deit_base/twoBill/target/transformer_best_model.pth"
+    checkpoint = "../logs/pretrain/deit_base/shipsear/target/transformer_10.pth"
     twoBill_transforms = T.Compose(
         [
             T.Resize((256, 256)),
@@ -21,7 +21,7 @@ if __name__ == "__main__":
         ]
     )
 
-    num_classes = 10
+    num_classes = 4
     device = "cuda"
 
     cfg.merge_from_file(config_file)

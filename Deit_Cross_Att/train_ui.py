@@ -1,4 +1,5 @@
 import sys
+import os
 import re
 from PyQt5.QtWidgets import (
     QApplication,
@@ -17,13 +18,13 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import QProcess
 
 
-class MainWindow(QWidget):
+class TrainInterface(QWidget):
     def __init__(self):
         super().__init__()
         self.initUI()
 
     def initUI(self):
-        self.setWindowTitle("Run Shipsear2DeepShip Script")
+        self.setWindowTitle("Train Model")
 
         # Set window size to 2/3 of the screen and center it
         screen = QDesktopWidget().screenGeometry()
@@ -41,7 +42,7 @@ class MainWindow(QWidget):
         input_params_layout = QVBoxLayout()
         buttons_layout = QVBoxLayout()
         output_layout = QVBoxLayout()
-        result_layout = QVBoxLayout()
+        result_layout = QHBoxLayout()
 
         # First Module: Input Parameters
         model_label = QLabel("选择模型参数:")
@@ -67,6 +68,7 @@ class MainWindow(QWidget):
 
         self.train_button = QPushButton("训练")
         self.train_button.setFixedSize(50, 40)
+        self.train_button.setStyleSheet("background-color: green; color: white;")
         self.train_button.clicked.connect(self.run_train_script)
         self.transfer_button = QPushButton("迁移")
         self.transfer_button.setFixedSize(50, 40)
@@ -108,8 +110,15 @@ class MainWindow(QWidget):
         self.accuracy_label = QLabel("最终准确率:")
         self.export_button = QPushButton("导出模型")
         self.export_button.clicked.connect(self.export_model)
+
+        # Add a red stop button to terminate training
+        self.stop_button = QPushButton("终止训练")
+        self.stop_button.setStyleSheet("background-color: red; color: white;")
+        self.stop_button.clicked.connect(self.stop_training)
+
         result_layout.addWidget(self.accuracy_label)
         result_layout.addWidget(self.export_button)
+        result_layout.addWidget(self.stop_button)
 
         # Add a line separator
         line = QFrame()
@@ -197,13 +206,21 @@ class MainWindow(QWidget):
             accuracy = match.group(1)
             self.accuracy_label.setText(f"最终准确率: {accuracy}%")
 
+    def stop_training(self):
+        if self.process.state() == QProcess.Running:
+            self.process.terminate()
+            self.output_text.append("训练已终止")
+
     def export_model(self):
         # Implement the export model logic here
         pass
 
 
 if __name__ == "__main__":
+    os.chdir(
+        r"C:\Users\june\Workspace\Bidirectional-matching-cross-transfer\Deit_Cross_Att"
+    )
     app = QApplication(sys.argv)
-    main_window = MainWindow()
+    main_window = TrainInterface()
     main_window.show()
     sys.exit(app.exec_())
