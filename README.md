@@ -2,9 +2,19 @@
 
 ## Requirements Installation
 
+1. create env (Python version is the 3.8 and the GPU is the 2080s, cudatoolkit 12.5)
+
 ```bash
+conda create -n bmt_py38 python=3.8
 pip install -r requirements.txt
-(Python version is the 3.7 and the GPU is the V100 with cuda 10.1, cudatoolkit 10.1)
+```
+
+2. install torch cuda(torch==1.8.1+cu111), follow this [link](https://pytorch.org/get-started/previous-versions/)
+
+* For windows:
+
+```bash
+ pip install torch==1.8.1+cu111 torchvision==0.9.1+cu111 torchaudio==0.8.1 -f <https://download.pytorch.org/whl/torch_stable.html>  
 ```
 
 ## Prepare Datasets
@@ -55,6 +65,7 @@ pip install -r requirements.txt
 ### 3. Then unzip them and rename them under the directory like follow
 
 ```
+
 data
 ├── shipsear2deepship
 │   │── shipsear
@@ -75,14 +86,17 @@ data
 |   |   │   │   └── xxx.png
 │   └── shipsear.txt
 │   └── deepship.txt
+
 ```
 
 4. The *.txt file should be like this:
 
 ```
+
 $(path_to_image) $(label)
 ...
 $(path_to_image) $(label)
+
 ```
 
 ### Prepare DeiT-trained Models
@@ -94,13 +108,21 @@ You need to download the ImageNet pretrained transformer model : [DeiT-Small](ht
 
 I utilize 1 GPU for pre-training and 1 GPU for UDA, each with 8G of memory.(2080s)
 
-* For pretrain
+### For pretrain
+
+* on Linux
 
 ```bash
 bash scripts/pretrain/ShipsEar2DeepShip/run_shipsear2deepship.sh deit_base
 ```
 
-* For transfer learning
+* on Windows
+
+```powershell
+ ./scripts/pretrain/ShipsEar2DeepShip/run_shipsear2deepship.bat deit_base
+```
+
+### For transfer learning
 
 ```bash
 bash scripts/uda/shipsear/run_shipsear.sh deit_base 
