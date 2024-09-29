@@ -49,7 +49,7 @@ if __name__ == '__main__':
     #                     help='epochs to cooldown LR at min_lr, after cyclic schedule ends')
     # parser.add_argument('--decay-rate', '--dr', type=float, default=0.1, metavar='RATE',
     #                     help='LR decay rate (default: 0.1)')
-    # parser.add_argument('--epochs', default=120, type=int)
+    parser.add_argument('--epochs', default=120, type=int)
     parser.add_argument("--local_rank", default=0, type=int)
     args = parser.parse_args()
 
