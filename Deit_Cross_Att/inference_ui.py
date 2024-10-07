@@ -16,7 +16,7 @@ from PyQt5.QtWidgets import (
     QLineEdit,
 )
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import QProcess
+from PyQt5.QtCore import QProcess, Qt
 from config import cfg
 from model import make_model
 from datasets.bases import load_image
@@ -42,23 +42,23 @@ class InferenceInterface(QWidget):
 
         # Layouts
         main_layout = QVBoxLayout()
-        input_layout = QVBoxLayout()
-        single_image_layout = QVBoxLayout()
-        multi_image_layout = QVBoxLayout()
+        model_input_layout = QHBoxLayout()
+        image_recognition_layout = QHBoxLayout()
 
         # First Module: Input Parameters
         checkpoint_label = QLabel("模型路径:")
         self.checkpoint_input = QLineEdit()
         checkpoint_button = QPushButton("选择文件")
         checkpoint_button.clicked.connect(self.select_checkpoint_file)
-
         load_model_button = QPushButton("加载模型")
         load_model_button.clicked.connect(self.load_model)
 
-        input_layout.addWidget(checkpoint_label)
-        input_layout.addWidget(self.checkpoint_input)
-        input_layout.addWidget(checkpoint_button)
-        input_layout.addWidget(load_model_button)
+        model_input_layout.addStretch()
+        model_input_layout.addWidget(checkpoint_label)
+        model_input_layout.addWidget(self.checkpoint_input)
+        model_input_layout.addWidget(checkpoint_button)
+        model_input_layout.addWidget(load_model_button)
+        model_input_layout.addStretch()
 
         # Add a line separator
         line1 = QFrame()
@@ -66,53 +66,76 @@ class InferenceInterface(QWidget):
         line1.setFrameShadow(QFrame.Sunken)
 
         # Second Module: Single Image Inference
-        single_image_label = QLabel("单张图片识别:")
-        self.image_label = QLabel()
-        self.image_label.setFixedSize(256, 256)
-        self.image_label.setStyleSheet("border: 1px solid black;")
-        self.image_label.setScaledContents(True)
-        self.image_label.mousePressEvent = self.select_image_file
+        # image input module
+        single_image_label = QLabel("目标识别:")
+        self.image_box = QLabel("点击选择图片")
+        self.image_box.setAlignment(Qt.AlignCenter)
+        self.image_box.setFixedSize(512, 512)
+        self.image_box.setStyleSheet("border: 1px solid black;")
+        self.image_box.setScaledContents(True)
+        self.image_box.mousePressEvent = self.select_image_file
 
-        self.result_label = QLabel("识别结果:")
-        self.result_text = QLabel("")
+        image_input_layout = QVBoxLayout()
+        image_input_layout.addWidget(single_image_label)
+        image_input_layout.addWidget(self.image_box)
 
+        # recognize button
         recognize_button = QPushButton("识别")
         recognize_button.clicked.connect(self.recognize_image)
-
-        single_image_layout.addWidget(single_image_label)
-        single_image_layout.addWidget(self.image_label)
-        single_image_layout.addWidget(recognize_button)
-        single_image_layout.addWidget(self.result_label)
-        single_image_layout.addWidget(self.result_text)
-
+        recognize_button.setFixedSize(160, 80)
+        recognize_button.setStyleSheet("""
+                    QPushButton {
+                        background-color: #b4c3a8;       /* 按钮背景色 */
+                        color: white;                    /* 文字颜色 */
+                        border-radius: 7px;             /* 圆角半径 */
+                        border: 2px solid #3E8E41;       /* 边框样式 */
+                        font-size: 28px;                 /* 文字大小 */
+                        padding: 10px 20px;              /* 内边距 */
+                    }
+                    QPushButton:hover {
+                        background-color: #45a049;       /* 鼠标悬停时的背景色 */
+                    }
+                    QPushButton:pressed {
+                        background-color: #3E8E41;       /* 按下按钮时的背景色 */
+                    }
+                """)
         # Add a line separator
         line2 = QFrame()
         line2.setFrameShape(QFrame.HLine)
         line2.setFrameShadow(QFrame.Sunken)
 
-        # Third Module: Multiple Images Inference
-        multi_image_label = QLabel("多张图片识别:")
-        self.folder_input = QLineEdit()
-        folder_button = QPushButton("选择文件夹")
-        folder_button.clicked.connect(self.select_folder)
+        # result show module
+        self.result_label = QLabel("识别结果:")
+        self.result_text = QLabel("")
 
-        recognize_folder_button = QPushButton("识别文件夹")
-        recognize_folder_button.clicked.connect(self.recognize_folder)
+        result_layout = QVBoxLayout()
+        result_layout.setAlignment(Qt.AlignCenter)
+        result_layout.addStretch()
+        result_layout.addWidget(recognize_button)
+        result_layout.addStretch()
+        result_layout.addWidget(line2)
+        result_layout.addStretch()
+        result_layout.addWidget(self.result_label)
+        result_layout.addWidget(self.result_text)
+        result_layout.addStretch()
 
-        self.folder_result_label = QLabel("")
 
-        multi_image_layout.addWidget(multi_image_label)
-        multi_image_layout.addWidget(self.folder_input)
-        multi_image_layout.addWidget(folder_button)
-        multi_image_layout.addWidget(recognize_folder_button)
-        multi_image_layout.addWidget(self.folder_result_label)
+        # All recognize image layout
+        image_recognition_layout.setAlignment(Qt.AlignJustify)
+        image_recognition_layout.addStretch()
+        image_recognition_layout.addLayout(image_input_layout)
+        image_recognition_layout.addStretch()
+        image_recognition_layout.addLayout(result_layout)
+        image_recognition_layout.addStretch()
+
 
         # Add layouts to main layout
-        main_layout.addLayout(input_layout)
+        main_layout.addStretch()
+        main_layout.addLayout(model_input_layout)
+        main_layout.addStretch()
         main_layout.addWidget(line1)
-        main_layout.addLayout(single_image_layout)
-        main_layout.addWidget(line2)
-        main_layout.addLayout(multi_image_layout)
+        main_layout.addLayout(image_recognition_layout)
+        main_layout.addStretch()
 
         self.setLayout(main_layout)
 
@@ -150,18 +173,18 @@ class InferenceInterface(QWidget):
         self.result_text.setText("模型加载成功")
 
     def select_image_file(self, event):
-        options = QFileDialog.Options()
-        file, _ = QFileDialog.getOpenFileName(
-            self,
-            "选择图片文件",
-            "",
-            "Image Files (*.png *.jpg *.bmp);;All Files (*)",
-            options=options,
-        )
-        if file:
-            self.image_path = file
-            pixmap = QPixmap(file)
-            self.image_label.setPixmap(pixmap)
+        file_dialog = QFileDialog()
+        file_dialog.setFileMode(QFileDialog.ExistingFiles)
+        file_dialog.setOption(QFileDialog.DontUseNativeDialog, True)
+        file_dialog.setNameFilters(["Image Files (*.png *.jpg *.bmp)", "All Files (*)"])
+        file_dialog.setViewMode(QFileDialog.Detail)
+
+        if file_dialog.exec_():
+            files = file_dialog.selectedFiles()
+            if files:
+                self.image_paths = files
+                pixmap = QPixmap(self.image_paths[0])
+                self.image_box.setPixmap(pixmap)
 
     def recognize_image(self):
         if not self.model:
@@ -181,66 +204,41 @@ class InferenceInterface(QWidget):
             ]
         )
 
-        img = load_image(self.image_path, transforms).to(self.device)
-        img = img.unsqueeze(0)
+        if len(self.image_paths) == 1:
+            img = load_image(self.image_paths[0], transforms).to(self.device)
+            img = img.unsqueeze(0)
+            camids = torch.tensor([0]).to(self.device)
+            target_view = torch.tensor([0]).to(self.device)
 
-        camids = torch.tensor([0]).to(self.device)
-        target_view = torch.tensor([0]).to(self.device)
+            with torch.no_grad():
 
-        with torch.no_grad():
+                probs = self.model(
+                    img, cam_label=camids, view_label=target_view, return_logits=True
+                )
+                _, predicted = torch.max(probs, 1)
+                self.result_text.setText(f"识别结果: {predicted.item()}")
+        else:
+            results = []
+            for filename in os.listdir(self.image_paths):
+                if filename.endswith((".png", ".jpg", ".bmp")):
+                    img_path = os.path.join(self.image_paths, filename)
+                    img = load_image(img_path, transforms).to(self.device)
+                    img = img.unsqueeze(0)
 
-            probs = self.model(img, cam_label=camids, view_label=target_view, return_logits=True)
-            _, predicted = torch.max(probs, 1)
-            self.result_text.setText(f"识别结果: {predicted.item()}")
-
-    def select_folder(self):
-        options = QFileDialog.Options()
-        folder = QFileDialog.getExistingDirectory(
-            self, "选择文件夹", "", options=options
-        )
-        if folder:
-            self.folder_input.setText(folder)
-
-    def recognize_folder(self):
-        if not self.model:
-            self.folder_result_label.setText("请先加载模型")
-            return
-
-        folder_path = self.folder_input.text()
-        if not folder_path:
-            self.folder_result_label.setText("请先选择文件夹")
-            return
-
-        transforms = T.Compose(
-            [
-                T.Resize((256, 256)),
-                T.CenterCrop((224, 224)),
-                T.ToTensor(),
-                T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
-            ]
-        )
-
-        results = []
-        for filename in os.listdir(folder_path):
-            if filename.endswith((".png", ".jpg", ".bmp")):
-                img_path = os.path.join(folder_path, filename)
-                img = load_image(img_path, transforms).to(self.device)
-                img = img.unsqueeze(0)
-
-                with torch.no_grad():
-                    output = self.model(img)
-                    _, predicted = torch.max(output, 1)
-                    results.append(f"{filename}: {predicted.item()}")
-
-        result_file = os.path.join(folder_path, "results.txt")
-        with open(result_file, "w") as f:
-            f.write("\n".join(results))
-
-        self.folder_result_label.setText(f"识别结果已保存到: {result_file}")
+                    with torch.no_grad():
+                        output = self.model(img)
+                        _, predicted = torch.max(output, 1)
+                        results.append(f"{filename}: {predicted.item()}")
+            result_file = os.path.join(self.image_paths, "results.txt")
+            with open(result_file, "w") as f:
+                f.write("\n".join(results))
+            self.folder_result_label.setText(f"识别结果已保存到: {result_file}")
 
 
 if __name__ == "__main__":
-    os.chdir(r"C:\Users\june\Workspace\Bidirectional-matching-cross-transfer\Deit_Cross_Att")
+    os.chdir(
+        r"C:\Users\timet\Workspace\Bidirectional-matching-cross-transfer\Deit_Cross_Att"
+    )
     app = QApplication(sys.argv)
     main_window = InferenceInterface()
     main_window.show()

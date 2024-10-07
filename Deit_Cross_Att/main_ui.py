@@ -35,20 +35,20 @@ class MainWindow(QWidget):
         button_layout = QHBoxLayout()
 
         # Buttons to switch between training and inference interfaces
-        train_button = QPushButton("训练界面")
-        train_button.clicked.connect(self.show_train_interface)
         inference_button = QPushButton("推理界面")
         inference_button.clicked.connect(self.show_inference_interface)
+        train_button = QPushButton("训练界面")
+        train_button.clicked.connect(self.show_train_interface)
 
-        button_layout.addWidget(train_button)
         button_layout.addWidget(inference_button)
+        button_layout.addWidget(train_button)
 
         # Stacked widget to hold different interfaces
         self.stacked_widget = QStackedWidget()
-        self.train_interface = TrainInterface()
         self.inference_interface = InferenceInterface()
-        self.stacked_widget.addWidget(self.train_interface)
+        self.train_interface = TrainInterface()
         self.stacked_widget.addWidget(self.inference_interface)
+        self.stacked_widget.addWidget(self.train_interface)
 
         main_layout.addLayout(button_layout)
         main_layout.addWidget(self.stacked_widget)
@@ -57,13 +57,17 @@ class MainWindow(QWidget):
 
     def show_train_interface(self):
         self.stacked_widget.setCurrentWidget(self.train_interface)
+        self.setWindowTitle("训练")
 
     def show_inference_interface(self):
         self.stacked_widget.setCurrentWidget(self.inference_interface)
+        self.setWindowTitle("推理")
 
 
 if __name__ == "__main__":
-    os.chdir(r"C:\Users\june\Workspace\Bidirectional-matching-cross-transfer\Deit_Cross_Att")
+    os.chdir(
+        r"C:\Users\timet\Workspace\Bidirectional-matching-cross-transfer\Deit_Cross_Att"
+    )
     app = QApplication(sys.argv)
     main_window = MainWindow()
     main_window.show()
