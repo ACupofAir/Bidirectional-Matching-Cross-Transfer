@@ -191,7 +191,7 @@ class InferenceInterface(QWidget):
             self.result_text.setText("请先加载模型")
             return
 
-        if not hasattr(self, "image_path"):
+        if not hasattr(self, "image_paths"):
             self.result_text.setText("请先选择图片")
             return
 
@@ -237,7 +237,7 @@ class InferenceInterface(QWidget):
 
 if __name__ == "__main__":
     os.chdir(
-        r"C:\Users\timet\Workspace\Bidirectional-matching-cross-transfer\Deit_Cross_Att"
+        r"C:\Users\june\Workspace\Bidirectional-matching-cross-transfer\Deit_Cross_Att"
     )
     app = QApplication(sys.argv)
     main_window = InferenceInterface()

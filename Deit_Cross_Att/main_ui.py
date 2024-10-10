@@ -66,7 +66,7 @@ class MainWindow(QWidget):
 
 if __name__ == "__main__":
     os.chdir(
-        r"C:\Users\timet\Workspace\Bidirectional-matching-cross-transfer\Deit_Cross_Att"
+        r"C:\Users\june\Workspace\Bidirectional-matching-cross-transfer\Deit_Cross_Att"
     )
     app = QApplication(sys.argv)
     main_window = MainWindow()

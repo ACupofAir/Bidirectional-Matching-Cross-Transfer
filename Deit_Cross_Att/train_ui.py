@@ -226,8 +226,7 @@ class TrainInterface(QWidget):
             f"DATASETS.NAMES Shipsear "
             f"DATASETS.NAMES2 Shipsear "
             f'OUTPUT_DIR "../logs/pretrain/{model}/shipsear/target" '
-            f'MODEL.PRETRAIN_PATH "../logs/pretrain/deit_base/shipsear/target/transformer_10.pth"'
-            f'MODEL.Transformer_TYPE {model}'
+            f'MODEL.PRETRAIN_PATH "../logs/pretrain/deit_base/shipsear/target/transformer_10.pth" '
             f'DATASETS.ROOT_TRAIN_DIR "{self.source_file_path}" '
             f'DATASETS.ROOT_TRAIN_DIR2 "{self.target_file_path}" '
             f'DATASETS.ROOT_TEST_DIR "{self.target_file_path}" '
@@ -269,7 +268,7 @@ class TrainInterface(QWidget):
 
 if __name__ == "__main__":
     os.chdir(
-        r"C:\Users\timet\Workspace\Bidirectional-matching-cross-transfer\Deit_Cross_Att"
+        r"C:\Users\june\Workspace\Bidirectional-matching-cross-transfer\Deit_Cross_Att"
     )
     app = QApplication(sys.argv)
     main_window = TrainInterface()
