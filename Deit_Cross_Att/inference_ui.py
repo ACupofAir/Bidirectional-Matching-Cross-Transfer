@@ -216,7 +216,8 @@ class InferenceInterface(QWidget):
                     img, cam_label=camids, view_label=target_view, return_logits=True
                 )
                 _, predicted = torch.max(probs, 1)
-                self.result_text.setText(f"识别结果: {predicted.item()}")
+                predicted_label = predicted.item()
+                self.result_text.setText(f"识别结果: {predicted_label}")
         else:
             results = []
             for filename in os.listdir(self.image_paths):
