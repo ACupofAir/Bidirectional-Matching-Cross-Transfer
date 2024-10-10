@@ -16,6 +16,7 @@ from PyQt5.QtWidgets import (
     QDesktopWidget,
 )
 from PyQt5.QtCore import QProcess
+from utils.ui.buttons import AirBtn
 
 
 class TrainInterface(QWidget):
@@ -66,45 +67,10 @@ class TrainInterface(QWidget):
         self.target_file_button.setFixedSize(80, 40)
         self.target_file_button.clicked.connect(self.select_target_file)
 
-        self.train_button = QPushButton("训练")
-        self.train_button.setStyleSheet(
-            """
-            QPushButton{
-                background-color: #c9d5bf;
-                color: white;
-                border-radius: 7px;             /* 圆角半径 */
-                border: 2px solid #3E8E41;       /* 边框样式 */
-                font-size: 28px;                 /* 文字大小 */
-                padding: 5px 10px;              /* 内边距 */
-            } 
-            QPushButton:hover {
-                background-color: #45a049;       /* 鼠标悬停时的背景色 */
-            }
-            QPushButton:pressed {
-                background-color: #3E8E41;       /* 按下按钮时的背景色 */
-            }
-            """
-        )
+        self.train_button = AirBtn("训练", fixed_size=(120, 60))
         self.train_button.clicked.connect(self.run_train_script)
-        self.transfer_button = QPushButton("迁移")
-        self.transfer_button.setStyleSheet(
-            """
-            QPushButton{
-                background-color: #bcb7c3;
-                color: white;
-                border-radius: 7px;             /* 圆角半径 */
-                border: 2px solid #3E8E41;       /* 边框样式 */
-                font-size: 28px;                 /* 文字大小 */
-                padding: 5px 10px;              /* 内边距 */
-            } 
-            QPushButton:hover {
-                background-color: #ece6f7;       /* 鼠标悬停时的背景色 */
-            }
-            QPushButton:pressed {
-                background-color: #ef9b93;       /* 按下按钮时的背景色 */
-            }
-            """
-        )
+
+        self.transfer_button = AirBtn("迁移", fixed_size=(120, 60))
         self.transfer_button.clicked.connect(self.run_transfer_script)
 
         input_params_layout.addWidget(model_label)

@@ -1,5 +1,6 @@
 import sys
 import os
+import time
 import torch
 import torchvision.transforms as T
 from PyQt5.QtWidgets import (
@@ -8,9 +9,8 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QLabel,
-    QComboBox,
     QPushButton,
-    QTextEdit,
+    QMessageBox,
     QFileDialog,
     QFrame,
     QLineEdit,
@@ -20,6 +20,7 @@ from PyQt5.QtCore import QProcess, Qt
 from config import cfg
 from model import make_model
 from datasets.bases import load_image
+from utils.ui.infoshow import InfoShowWidget
 
 
 class InferenceInterface(QWidget):
@@ -83,30 +84,37 @@ class InferenceInterface(QWidget):
         recognize_button = QPushButton("识别")
         recognize_button.clicked.connect(self.recognize_image)
         recognize_button.setFixedSize(160, 80)
-        recognize_button.setStyleSheet("""
+        recognize_button.setStyleSheet(
+            """
                     QPushButton {
-                        background-color: #b4c3a8;       /* 按钮背景色 */
+                        background-color: #000000;       /* 按钮背景色 */
                         color: white;                    /* 文字颜色 */
                         border-radius: 7px;             /* 圆角半径 */
-                        border: 2px solid #3E8E41;       /* 边框样式 */
+                        border: 2px solid #000000;       /* 边框样式 */
                         font-size: 28px;                 /* 文字大小 */
                         padding: 10px 20px;              /* 内边距 */
                     }
                     QPushButton:hover {
-                        background-color: #45a049;       /* 鼠标悬停时的背景色 */
+                        background-color: #888888;       /* 鼠标悬停时的背景色 */
+                        border: 2px solid #888888;       /* 边框样式 */
                     }
                     QPushButton:pressed {
-                        background-color: #3E8E41;       /* 按下按钮时的背景色 */
+                        background-color: #111111;       /* 按下按钮时的背景色 */
+                        border: 2px solid #111111;       /* 边框样式 */
                     }
-                """)
+                """
+        )
         # Add a line separator
         line2 = QFrame()
         line2.setFrameShape(QFrame.HLine)
         line2.setFrameShadow(QFrame.Sunken)
 
-        # result show module
-        self.result_label = QLabel("识别结果:")
-        self.result_text = QLabel("")
+        self.result_info_widget = InfoShowWidget(
+            info_label="结果", label_bg_color="#000000"
+        )
+        self.result_time_widget = InfoShowWidget(
+            info_label="耗时", label_bg_color="#000000"
+        )
 
         result_layout = QVBoxLayout()
         result_layout.setAlignment(Qt.AlignCenter)
@@ -115,10 +123,9 @@ class InferenceInterface(QWidget):
         result_layout.addStretch()
         result_layout.addWidget(line2)
         result_layout.addStretch()
-        result_layout.addWidget(self.result_label)
-        result_layout.addWidget(self.result_text)
+        result_layout.addWidget(self.result_info_widget)
+        result_layout.addWidget(self.result_time_widget)
         result_layout.addStretch()
-
 
         # All recognize image layout
         image_recognition_layout.setAlignment(Qt.AlignJustify)
@@ -127,7 +134,6 @@ class InferenceInterface(QWidget):
         image_recognition_layout.addStretch()
         image_recognition_layout.addLayout(result_layout)
         image_recognition_layout.addStretch()
-
 
         # Add layouts to main layout
         main_layout.addStretch()
@@ -147,7 +153,7 @@ class InferenceInterface(QWidget):
         options = QFileDialog.Options()
         file, _ = QFileDialog.getOpenFileName(
             self,
-            "选择检查点文件",
+            "选择模型文件",
             "",
             "PyTorch Model Files (*.pth);;All Files (*)",
             options=options,
@@ -159,7 +165,7 @@ class InferenceInterface(QWidget):
         config_file = "configs/pretrain.yml"
         checkpoint = self.checkpoint_input.text()
         if not config_file or not checkpoint:
-            self.result_text.setText("请提供配置文件和检查点文件路径")
+            QMessageBox.critical(self, "错误", "请提供模型文件路径")
             return
 
         cfg.merge_from_file(config_file)
@@ -170,7 +176,7 @@ class InferenceInterface(QWidget):
         self.model.load_param_finetune(checkpoint)
         self.model.to(self.device)
         self.model.eval()
-        self.result_text.setText("模型加载成功")
+        QMessageBox.information(self, "提示", "模型加载成功")
 
     def select_image_file(self, event):
         file_dialog = QFileDialog()
@@ -188,11 +194,11 @@ class InferenceInterface(QWidget):
 
     def recognize_image(self):
         if not self.model:
-            self.result_text.setText("请先加载模型")
+            QMessageBox.critical(self, "错误", "请先加载模型")
             return
 
         if not hasattr(self, "image_paths"):
-            self.result_text.setText("请先选择图片")
+            QMessageBox.critical(self, "错误", "请先选择图片")
             return
 
         transforms = T.Compose(
@@ -204,20 +210,25 @@ class InferenceInterface(QWidget):
             ]
         )
 
+        # Single Image Inference
         if len(self.image_paths) == 1:
             img = load_image(self.image_paths[0], transforms).to(self.device)
             img = img.unsqueeze(0)
             camids = torch.tensor([0]).to(self.device)
             target_view = torch.tensor([0]).to(self.device)
 
+            inference_start_time = time.time()
             with torch.no_grad():
-
                 probs = self.model(
                     img, cam_label=camids, view_label=target_view, return_logits=True
                 )
                 _, predicted = torch.max(probs, 1)
-                predicted_label = predicted.item()
-                self.result_text.setText(f"识别结果: {predicted_label}")
+
+            inference_end_time = time.time()
+            elapsed_time = (inference_end_time - inference_start_time) * 1000
+            predicted_label = predicted.item()
+            self.result_info_widget.setText(f"类别{predicted_label}")
+            self.result_time_widget.setText(f"{elapsed_time:.2f}ms")
         else:
             results = []
             for filename in os.listdir(self.image_paths):
