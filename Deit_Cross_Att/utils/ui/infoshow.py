@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel
 from PyQt5.QtCore import Qt
 
 class InfoShowWidget(QWidget):
-    def __init__(self, info_label="Info:", info_text="", label_bg_color="#3E8E41", parent=None):
+    def __init__(self, info_label="Info:", info_text="", label_bg_color="#000000", parent=None):
         super(InfoShowWidget, self).__init__(parent)
         self.initUI(info_label, info_text, label_bg_color)
 

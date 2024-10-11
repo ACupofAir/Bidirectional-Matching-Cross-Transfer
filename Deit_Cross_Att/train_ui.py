@@ -15,13 +15,16 @@ from PyQt5.QtWidgets import (
     QFrame,
     QDesktopWidget,
 )
-from PyQt5.QtCore import QProcess
-from utils.ui.buttons import AirBtn
+from PyQt5.QtCore import QProcess, QTime, QTimer
+from utils.ui import AirBtn, InfoShowWidget
 
 
 class TrainInterface(QWidget):
     def __init__(self):
         super().__init__()
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_time_display)
+        self.elapsed_time = QTime(0, 0, 0)
         self.initUI()
 
     def initUI(self):
@@ -67,10 +70,10 @@ class TrainInterface(QWidget):
         self.target_file_button.setFixedSize(80, 40)
         self.target_file_button.clicked.connect(self.select_target_file)
 
-        self.train_button = AirBtn("训练", fixed_size=(120, 60))
+        self.train_button = AirBtn("训练", fixed_size=(120, 40))
         self.train_button.clicked.connect(self.run_train_script)
 
-        self.transfer_button = AirBtn("迁移", fixed_size=(120, 60))
+        self.transfer_button = AirBtn("迁移", fixed_size=(120, 40))
         self.transfer_button.clicked.connect(self.run_transfer_script)
 
         input_params_layout.addWidget(model_label)
@@ -104,16 +107,19 @@ class TrainInterface(QWidget):
         output_layout.addWidget(self.output_text)
 
         # Third Module: Final Accuracy and Export Model
-        self.accuracy_label = QLabel("最终准确率:")
-        self.export_button = QPushButton("导出模型")
+        self.accuracy_info_box = InfoShowWidget("准确率:", "0%")
+        self.time_display_box = InfoShowWidget("耗时:", "0s")
+        self.export_button = AirBtn("导出模型", fixed_size=(120, 50))
         self.export_button.clicked.connect(self.export_model)
 
         # Add a red stop button to terminate training
-        self.stop_button = QPushButton("终止训练")
-        self.stop_button.setStyleSheet("background-color: red; color: white;")
+        self.stop_button = AirBtn(
+            "终止训练", fixed_size=(120, 50), background_color="red"
+        )
         self.stop_button.clicked.connect(self.stop_training)
 
-        result_layout.addWidget(self.accuracy_label)
+        result_layout.addWidget(self.accuracy_info_box)
+        result_layout.addWidget(self.time_display_box)
         result_layout.addWidget(self.export_button)
         result_layout.addWidget(self.stop_button)
 
@@ -135,6 +141,13 @@ class TrainInterface(QWidget):
         self.process.readyReadStandardOutput.connect(self.handle_stdout)
         self.process.readyReadStandardError.connect(self.handle_stderr)
         self.process.finished.connect(self.process_finished)
+
+    def update_time_display(self):
+        elapsed = self.elapsed_time.elapsed() // 1000
+        hours = elapsed // 3600
+        minutes = (elapsed % 3600) // 60
+        seconds = elapsed % 60
+        self.time_display_box.setText(f"{hours:02}:{minutes:02}:{seconds:02}")
 
     def select_source_file(self):
         options = QFileDialog.Options()
@@ -177,6 +190,8 @@ class TrainInterface(QWidget):
             f"SOLVER.LOG_PERIOD 10 "
             f"SOLVER.MAX_EPOCHS {epochs}"
         )
+        self.elapsed_time.start()
+        self.timer.start(1000)  # Update every second
         self.process.start(cmd)
 
     def run_transfer_script(self):
@@ -199,8 +214,9 @@ class TrainInterface(QWidget):
             f"SOLVER.LOG_PERIOD 10 "
             f"SOLVER.MAX_EPOCHS {epochs}"
         )
+        self.elapsed_time.start()
+        self.timer.start(1000)  # Update every second
         self.process.start(cmd)
-        pass
 
     def handle_stdout(self):
         data = self.process.readAllStandardOutput()
@@ -213,18 +229,21 @@ class TrainInterface(QWidget):
         self.output_text.append(stderr)
 
     def process_finished(self):
+        self.timer.stop()
+        print('======================DEBUG START: finished======================')
         self.output_text.append("脚本执行完成")
+        print('======================DEBUG  END : finished======================')
         # Extract the final accuracy from the last line of the output
         output_lines = self.output_text.toPlainText().split("\n")
         last_line = output_lines[-3] if len(output_lines) > 1 else output_lines[-1]
         match = re.search(r"Accuracy:\s*(\d+)%", last_line)
         if match:
             accuracy = match.group(1)
-            self.accuracy_label.setText(f"最终准确率: {accuracy}%")
+            self.accuracy_info_box.setText(f"{accuracy}%")
 
     def stop_training(self):
         if self.process.state() == QProcess.Running:
-            self.process.terminate()
+            self.process.kill()
             self.output_text.append("训练已终止")
 
     def export_model(self):

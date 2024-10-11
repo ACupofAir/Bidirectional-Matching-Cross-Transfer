@@ -20,7 +20,7 @@ from PyQt5.QtCore import QProcess, Qt
 from config import cfg
 from model import make_model
 from datasets.bases import load_image
-from utils.ui.infoshow import InfoShowWidget
+from utils.ui import InfoShowWidget, AirBtn
 
 
 class InferenceInterface(QWidget):
@@ -68,7 +68,6 @@ class InferenceInterface(QWidget):
 
         # Second Module: Single Image Inference
         # image input module
-        single_image_label = QLabel("目标识别:")
         self.image_box = QLabel("点击选择图片")
         self.image_box.setAlignment(Qt.AlignCenter)
         self.image_box.setFixedSize(512, 512)
@@ -77,33 +76,12 @@ class InferenceInterface(QWidget):
         self.image_box.mousePressEvent = self.select_image_file
 
         image_input_layout = QVBoxLayout()
-        image_input_layout.addWidget(single_image_label)
         image_input_layout.addWidget(self.image_box)
 
         # recognize button
-        recognize_button = QPushButton("识别")
+        recognize_button = AirBtn("识别", fixed_size=(160, 80))
         recognize_button.clicked.connect(self.recognize_image)
-        recognize_button.setFixedSize(160, 80)
-        recognize_button.setStyleSheet(
-            """
-                    QPushButton {
-                        background-color: #000000;       /* 按钮背景色 */
-                        color: white;                    /* 文字颜色 */
-                        border-radius: 7px;             /* 圆角半径 */
-                        border: 2px solid #000000;       /* 边框样式 */
-                        font-size: 28px;                 /* 文字大小 */
-                        padding: 10px 20px;              /* 内边距 */
-                    }
-                    QPushButton:hover {
-                        background-color: #888888;       /* 鼠标悬停时的背景色 */
-                        border: 2px solid #888888;       /* 边框样式 */
-                    }
-                    QPushButton:pressed {
-                        background-color: #111111;       /* 按下按钮时的背景色 */
-                        border: 2px solid #111111;       /* 边框样式 */
-                    }
-                """
-        )
+
         # Add a line separator
         line2 = QFrame()
         line2.setFrameShape(QFrame.HLine)
