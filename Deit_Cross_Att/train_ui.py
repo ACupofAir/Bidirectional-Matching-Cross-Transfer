@@ -257,7 +257,7 @@ class TrainInterface(QWidget):
             acc = float(acc_match.group(1)) * 100
             self.loss_data.append(loss)
             self.acc_data.append(acc)
-            self.accuracy_info_box.setText(f"{acc}%")
+            self.accuracy_info_box.setText(f"{acc:.3f}%")
 
     def handle_stderr(self):
         data = self.process.readAllStandardError()
