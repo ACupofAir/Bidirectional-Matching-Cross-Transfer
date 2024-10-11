@@ -75,7 +75,6 @@ def do_train_pretrain(
         scheduler.step(epoch)
         model.train()
         for n_iter, (img, vid, target_cam, target_view, _) in enumerate(train_loader):
-            # print('aaaaaa!!!')
             if len(img) == 1:
                 continue
             optimizer.zero_grad()

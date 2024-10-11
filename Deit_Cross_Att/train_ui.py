@@ -11,20 +11,33 @@ from PyQt5.QtWidgets import (
     QComboBox,
     QPushButton,
     QTextEdit,
+    QMessageBox,
     QFileDialog,
     QFrame,
     QDesktopWidget,
 )
 from PyQt5.QtCore import QProcess, QTime, QTimer
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from utils.ui import AirBtn, InfoShowWidget
 
 
 class TrainInterface(QWidget):
     def __init__(self):
         super().__init__()
+
+        # Time log
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_time_display)
         self.elapsed_time = QTime(0, 0, 0)
+
+        # Acc and loss log
+        self.loss_data = []
+        self.acc_data = []
+
+        self.source_file_path = None
+        self.target_file_path = None
+
         self.initUI()
 
     def initUI(self):
@@ -105,6 +118,9 @@ class TrainInterface(QWidget):
         self.output_text.setReadOnly(True)
         output_layout.addWidget(QLabel("脚本输出:"))
         output_layout.addWidget(self.output_text)
+        self.figure = Figure()
+        self.canvas = FigureCanvas(self.figure)
+        output_layout.addWidget(self.canvas)
 
         # Third Module: Final Accuracy and Export Model
         self.accuracy_info_box = InfoShowWidget("准确率:", "0%")
@@ -179,7 +195,7 @@ class TrainInterface(QWidget):
         model = self.model_combobox.currentText()
         epochs = self.epochs_spinbox.value()
         if not self.source_file_path or not self.target_file_path:
-            self.output_text.append("请提供源域和目标域文件路径")
+            QMessageBox.critical(self, "错误", "请提供源域和目标域文件路径")
             return
 
         cmd = (
@@ -199,7 +215,7 @@ class TrainInterface(QWidget):
         model = self.model_combobox.currentText()
         epochs = self.epochs_spinbox.value()
         if not self.source_file_path or not self.target_file_path:
-            self.output_text.append("请提供源域和目标域文件路径")
+            QMessageBox.critical(self, "错误", "请提供源域和目标域文件路径")
             return
 
         cmd = (
@@ -218,33 +234,54 @@ class TrainInterface(QWidget):
         self.timer.start(1000)  # Update every second
         self.process.start(cmd)
 
+    def update_plot(self):
+        self.figure.clear()
+        ax = self.figure.add_subplot(111)
+        ax.plot(self.loss_data, label="Loss")
+        ax.plot(self.acc_data, label="Accuracy")
+        ax.legend()
+        self.canvas.draw()
+
     def handle_stdout(self):
         data = self.process.readAllStandardOutput()
         stdout = bytes(data).decode("utf8")
         self.output_text.append(stdout)
+        loss_match = re.search(r"Loss:\s*([\d.]+)", stdout)
+        acc_match = re.search(r"Acc:\s*([\d.]+)", stdout)
+        print("======================DEBUG START: loss acc match======================")
+        print(loss_match)
+        print(acc_match)
+        print("======================DEBUG  END : loss acc match======================")
+        if loss_match and acc_match:
+            loss = float(loss_match.group(1))
+            acc = float(acc_match.group(1)) * 100
+            self.loss_data.append(loss)
+            self.acc_data.append(acc)
+            self.accuracy_info_box.setText(f"{acc}%")
 
     def handle_stderr(self):
         data = self.process.readAllStandardError()
         stderr = bytes(data).decode("utf8")
-        self.output_text.append(stderr)
+        QMessageBox.critical(self, "错误", stderr)
 
     def process_finished(self):
         self.timer.stop()
-        print('======================DEBUG START: finished======================')
-        self.output_text.append("脚本执行完成")
-        print('======================DEBUG  END : finished======================')
-        # Extract the final accuracy from the last line of the output
-        output_lines = self.output_text.toPlainText().split("\n")
-        last_line = output_lines[-3] if len(output_lines) > 1 else output_lines[-1]
-        match = re.search(r"Accuracy:\s*(\d+)%", last_line)
-        if match:
-            accuracy = match.group(1)
-            self.accuracy_info_box.setText(f"{accuracy}%")
+        print(
+            "======================DEBUG START: process finished======================"
+        )
+        QMessageBox.information(self, "成功", "脚本执行完成")
+        print(
+            "======================DEBUG  END : process finished======================"
+        )
 
     def stop_training(self):
         if self.process.state() == QProcess.Running:
             self.process.kill()
-            self.output_text.append("训练已终止")
+            QMessageBox.information(self, "成功", "脚本执行完成")
+            print("======================DEBUG START: acc loss======================")
+            print(self.acc_data)
+            print(self.loss_data)
+            print("======================DEBUG  END : acc loss======================")
 
     def export_model(self):
         # Implement the export model logic here
