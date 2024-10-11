@@ -236,8 +236,10 @@ class TrainInterface(QWidget):
 
     def update_plot(self):
         self.figure.clear()
-        ax = self.figure.add_subplot(111)
+        ax = self.figure.add_subplot(121)
         ax.plot(self.loss_data, label="Loss")
+        ax.legend()
+        ax = self.figure.add_subplot(122)
         ax.plot(self.acc_data, label="Accuracy")
         ax.legend()
         self.canvas.draw()
@@ -257,6 +259,7 @@ class TrainInterface(QWidget):
             acc = float(acc_match.group(1)) * 100
             self.loss_data.append(loss)
             self.acc_data.append(acc)
+            self.update_plot()
             self.accuracy_info_box.setText(f"{acc:.2f}%")
 
     def handle_stderr(self):
