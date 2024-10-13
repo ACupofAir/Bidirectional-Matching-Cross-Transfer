@@ -8,10 +8,8 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
     QSpinBox,
     QLabel,
-    QPushButton,
     QTextEdit,
     QMessageBox,
-    QFileDialog,
     QFrame,
     QDesktopWidget,
 )
