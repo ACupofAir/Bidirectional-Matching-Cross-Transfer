@@ -9,12 +9,14 @@ class FileSelector(QWidget):
         self,
         selector_text="未选择文件",
         btn_text="选择",
+        filetype="All Files (*)",
         height=50,
         parent=None,
     ):
         super(FileSelector, self).__init__(parent)
         self.selected_file = None
         self.height = height
+        self.filetype = filetype
         self.file_box_text = selector_text
         self.btn_text = btn_text
         self.initUI()
@@ -45,7 +47,7 @@ class FileSelector(QWidget):
             self,
             "Select a file",
             "",
-            "All Files (*);;Text Files (*.txt)",
+            f"{self.filetype}",
             options=options,
         )
         if file_path:

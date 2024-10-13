@@ -70,11 +70,13 @@ class TrainInterface(QWidget):
         self.source_file_selector = FileSelector(
             selector_text="未选择源域文件",
             btn_text="选择",
+            filetype="txt files (*.txt);;all files (*)",
             height=40,
         )
         self.target_file_selector = FileSelector(
             selector_text="未选择目标域文件",
             btn_text="选择",
+            filetype="txt files (*.txt);;all files (*)",
             height=40,
         )
 
