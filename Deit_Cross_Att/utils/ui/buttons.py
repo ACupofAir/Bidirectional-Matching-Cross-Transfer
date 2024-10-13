@@ -7,6 +7,7 @@ class AirBtn(QPushButton):
         self,
         text,
         fixed_size=(160, 80),
+        font_size=None,
         background_color="#000000",
         font_color="#ffffff",
         parent=None,
@@ -15,7 +16,7 @@ class AirBtn(QPushButton):
         self.fixed_size = fixed_size
         self.bg_color = background_color
         self.font_color = font_color
-        self.font_size = f"{int(fixed_size[1] * 0.4)}px"
+        self.font_size = font_size if font_size else f"{int(fixed_size[1] * 0.5)}px"
         self.hover_bg_color = self.calculate_hover_color(self.bg_color)
         self.initUI()
 

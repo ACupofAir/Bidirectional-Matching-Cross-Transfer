@@ -18,7 +18,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import QProcess, QTime, QTimer
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from utils.ui import AirBtn, InfoShowWidget
+from utils.ui import AirBtn, InfoShowWidget, FileSelector
 
 
 class TrainInterface(QWidget):
@@ -67,17 +67,16 @@ class TrainInterface(QWidget):
         self.epochs_spinbox.setRange(1, 1000)  # Set range for epochs
         self.epochs_spinbox.setValue(10)  # Set default value
 
-        self.source_file_display = QLabel("源域文件")
-        self.source_file_display.setFixedSize(400, 40)
-        self.source_file_button = QPushButton("选择")
-        self.source_file_button.setFixedSize(80, 40)
-        self.source_file_button.clicked.connect(self.select_source_file)
-
-        self.target_file_display = QLabel("目标域文件")
-        self.target_file_display.setFixedSize(400, 40)
-        self.target_file_button = QPushButton("选择")
-        self.target_file_button.setFixedSize(80, 40)
-        self.target_file_button.clicked.connect(self.select_target_file)
+        self.source_file_selector = FileSelector(
+            selector_text="未选择源域文件",
+            btn_text="选择",
+            height=40,
+        )
+        self.target_file_selector = FileSelector(
+            selector_text="未选择目标域文件",
+            btn_text="选择",
+            height=40,
+        )
 
         self.train_button = AirBtn("训练", fixed_size=(120, 40))
         self.train_button.clicked.connect(self.run_train_script)
@@ -89,19 +88,11 @@ class TrainInterface(QWidget):
         epochs_layout.addWidget(epochs_label)
         epochs_layout.addWidget(self.epochs_spinbox)
 
-        source_file_layout = QHBoxLayout()
-        source_file_layout.addWidget(self.source_file_display)
-        source_file_layout.addWidget(self.source_file_button)
-
-        target_file_layout = QHBoxLayout()
-        target_file_layout.addWidget(self.target_file_display)
-        target_file_layout.addWidget(self.target_file_button)
-
         # input params: model_label, epochs_layout, source_file_layout, target_file_layout
         input_params_layout.addWidget(model_label)
         input_params_layout.addLayout(epochs_layout)
-        input_params_layout.addLayout(source_file_layout)
-        input_params_layout.addLayout(target_file_layout)
+        input_params_layout.addWidget(self.source_file_selector)
+        input_params_layout.addWidget(self.target_file_selector)
 
         buttons_layout.addWidget(self.train_button)
         buttons_layout.addWidget(self.transfer_button)
@@ -121,12 +112,12 @@ class TrainInterface(QWidget):
         # Third Module: Final Accuracy and Export Model
         self.accuracy_info_box = InfoShowWidget("准确率:", "0%")
         self.time_display_box = InfoShowWidget("耗时:", "0s")
-        self.export_button = AirBtn("导出模型", fixed_size=(120, 50))
+        self.export_button = AirBtn("导出模型", fixed_size=(150, 50))
         self.export_button.clicked.connect(self.export_model)
 
         # Add a red stop button to terminate training
         self.stop_button = AirBtn(
-            "终止训练", fixed_size=(120, 50), background_color="red"
+            "终止训练", fixed_size=(150, 50), background_color="red"
         )
         self.stop_button.clicked.connect(self.stop_training)
 
@@ -161,43 +152,19 @@ class TrainInterface(QWidget):
         seconds = elapsed % 60
         self.time_display_box.setText(f"{hours:02}:{minutes:02}:{seconds:02}")
 
-    def select_source_file(self):
-        options = QFileDialog.Options()
-        file, _ = QFileDialog.getOpenFileName(
-            self,
-            "选择源域文件",
-            "",
-            "All Files (*);;Text Files (*.txt)",
-            options=options,
-        )
-        if file:
-            self.source_file_path = file
-            self.source_file_display.setText(file)
-
-    def select_target_file(self):
-        options = QFileDialog.Options()
-        file, _ = QFileDialog.getOpenFileName(
-            self,
-            "选择目标域文件",
-            "",
-            "All Files (*);;Text Files (*.txt)",
-            options=options,
-        )
-        if file:
-            self.target_file_path = file
-            self.target_file_display.setText(file)
-
     def run_train_script(self):
         epochs = self.epochs_spinbox.value()
-        if not self.source_file_path or not self.target_file_path:
+        source_file_path = self.source_file_selector.get_file_path()
+        target_file_path = self.target_file_selector.get_file_path()
+        if not source_file_path or not target_file_path:
             QMessageBox.critical(self, "错误", "请提供源域和目标域文件路径")
             return
 
         cmd = (
             f"python train.py  --config_file configs/pretrain.yml DATASETS.NAMES Shipsear "
             f'OUTPUT_DIR "../logs/pretrain/deit_base/shipsear/target" '
-            f'DATASETS.ROOT_TRAIN_DIR "{self.source_file_path}" '
-            f'DATASETS.ROOT_TEST_DIR "{self.target_file_path}" '
+            f'DATASETS.ROOT_TRAIN_DIR "{source_file_path}" '
+            f'DATASETS.ROOT_TEST_DIR "{target_file_path}" '
             f"SOLVER.LOG_PERIOD 10 "
             f"SOLVER.MAX_EPOCHS {epochs}"
         )
@@ -208,7 +175,9 @@ class TrainInterface(QWidget):
     def run_transfer_script(self):
         # Implement the transfer script logic here
         epochs = self.epochs_spinbox.value()
-        if not self.source_file_path or not self.target_file_path:
+        source_file_path = self.source_file_selector.get_file_path()
+        target_file_path = self.target_file_selector.get_file_path()
+        if not source_file_path or not target_file_path:
             QMessageBox.critical(self, "错误", "请提供源域和目标域文件路径")
             return
 
@@ -218,9 +187,9 @@ class TrainInterface(QWidget):
             f"DATASETS.NAMES2 Shipsear "
             f'OUTPUT_DIR "../logs/pretrain/deit_base/shipsear/target" '
             f'MODEL.PRETRAIN_PATH "../logs/pretrain/deit_base/shipsear/target/transformer_10.pth" '
-            f'DATASETS.ROOT_TRAIN_DIR "{self.source_file_path}" '
-            f'DATASETS.ROOT_TRAIN_DIR2 "{self.target_file_path}" '
-            f'DATASETS.ROOT_TEST_DIR "{self.target_file_path}" '
+            f'DATASETS.ROOT_TRAIN_DIR "{source_file_path}" '
+            f'DATASETS.ROOT_TRAIN_DIR2 "{target_file_path}" '
+            f'DATASETS.ROOT_TEST_DIR "{target_file_path}" '
             f"SOLVER.LOG_PERIOD 10 "
             f"SOLVER.MAX_EPOCHS {epochs}"
         )
