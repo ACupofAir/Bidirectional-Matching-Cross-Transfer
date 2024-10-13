@@ -194,10 +194,12 @@ class InferenceInterface(QWidget):
             QMessageBox.critical(self, "错误", "请先加载模型")
             return
 
-        image_paths = image_paths or self.image_paths
         if not image_paths:
-            QMessageBox.critical(self, "错误", "请先选择图片")
-            return
+            if not hasattr(self, "image_paths"):
+                QMessageBox.critical(self, "错误", "请先选择图片")
+                return
+            else:
+                image_paths = self.image_paths
 
         transforms = T.Compose(
             [

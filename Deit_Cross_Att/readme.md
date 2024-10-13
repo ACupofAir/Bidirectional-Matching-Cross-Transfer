@@ -20,8 +20,9 @@
 
 ## Overview
 
-![overview](res/overview.png)
-![trainview](res/train.png)
+![inference](res/2024-10-13-20-19-08.png)
+![train](2024-10-13-20-26-35.png)
+
 ## Process
 
 ### 训练界面
