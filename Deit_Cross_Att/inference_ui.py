@@ -182,16 +182,10 @@ class InferenceInterface(QWidget):
         if not self.audio_path:
             QMessageBox.critical(self, "错误", "请先选择音频")
             return
-        print(
-            "======================DEBUG START: start audio convert======================"
-        )
         temp_filename = f"tmp_{uuid.uuid4().hex}.png"
         audiofile2specfile(self.audio_path, saved_path=temp_filename)
         pixmap = QPixmap(temp_filename)
         self.image_box.setPixmap(pixmap)
-        print(
-            "======================DEBUG  END : start audio convert======================"
-        )
         self.recognize_image([temp_filename])
         os.remove(temp_filename)
 
