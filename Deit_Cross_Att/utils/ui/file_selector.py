@@ -54,7 +54,7 @@ class FileSelector(QWidget):
             self.file_path_edit.setText(file_path)
             self.selected_file = file_path
 
-    def get_file_path(self):
+    def get_selected_file(self):
         return self.selected_file
 
 

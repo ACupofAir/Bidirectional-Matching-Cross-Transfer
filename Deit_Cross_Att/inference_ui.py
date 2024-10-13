@@ -20,7 +20,9 @@ from PyQt5.QtCore import QProcess, Qt
 from config import cfg
 from model import make_model
 from datasets.bases import load_image
-from utils.ui import InfoShowWidget, AirBtn
+from utils.ui import InfoShowWidget, AirBtn, FileSelector
+from utils.audio2specgram import audiofile2specfile
+import uuid
 
 
 class InferenceInterface(QWidget):
@@ -47,18 +49,27 @@ class InferenceInterface(QWidget):
         image_recognition_layout = QHBoxLayout()
 
         # First Module: Input Parameters
-        checkpoint_label = QLabel("模型路径:")
-        self.checkpoint_input = QLineEdit()
-        checkpoint_button = QPushButton("选择文件")
-        checkpoint_button.clicked.connect(self.select_checkpoint_file)
-        load_model_button = QPushButton("加载模型")
+        self.checkpoint_input = FileSelector(
+            selector_text="未选择模型文件:",
+            btn_text="选择",
+            filetype="PyTorch Model Files (*.pth)",
+        )
+        load_model_button = AirBtn(
+            "加载", fixed_size=(100, 50), background_color="#13a460"
+        )
         load_model_button.clicked.connect(self.load_model)
 
+        self.audio_file_selector = FileSelector(
+            selector_text="未选择音频文件:",
+            btn_text="选择",
+            filetype="Audio Files (*.wav)",
+        )
+
         model_input_layout.addStretch()
-        model_input_layout.addWidget(checkpoint_label)
         model_input_layout.addWidget(self.checkpoint_input)
-        model_input_layout.addWidget(checkpoint_button)
         model_input_layout.addWidget(load_model_button)
+        model_input_layout.addStretch()
+        model_input_layout.addWidget(self.audio_file_selector)
         model_input_layout.addStretch()
 
         # Add a line separator
@@ -68,7 +79,7 @@ class InferenceInterface(QWidget):
 
         # Second Module: Single Image Inference
         # image input module
-        self.image_box = QLabel("点击选择图片")
+        self.image_box = QLabel("未选择音频时请点击选择图片")
         self.image_box.setAlignment(Qt.AlignCenter)
         self.image_box.setFixedSize(512, 512)
         self.image_box.setStyleSheet("border: 1px solid black;")
@@ -79,8 +90,11 @@ class InferenceInterface(QWidget):
         image_input_layout.addWidget(self.image_box)
 
         # recognize button
-        recognize_button = AirBtn("识别", fixed_size=(160, 80))
-        recognize_button.clicked.connect(self.recognize_image)
+        recognize_img_btn = AirBtn("识别图片", fixed_size=(200, 50))
+        recognize_img_btn.clicked.connect(self.recognize_image)
+
+        recognize_audio_btn = AirBtn("识别音频", fixed_size=(200, 50))
+        recognize_audio_btn.clicked.connect(self.recognize_audio)
 
         # Add a line separator
         line2 = QFrame()
@@ -97,7 +111,8 @@ class InferenceInterface(QWidget):
         result_layout = QVBoxLayout()
         result_layout.setAlignment(Qt.AlignCenter)
         result_layout.addStretch()
-        result_layout.addWidget(recognize_button)
+        result_layout.addWidget(recognize_img_btn)
+        result_layout.addWidget(recognize_audio_btn)
         result_layout.addStretch()
         result_layout.addWidget(line2)
         result_layout.addStretch()
@@ -127,21 +142,9 @@ class InferenceInterface(QWidget):
         self.model = None
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    def select_checkpoint_file(self):
-        options = QFileDialog.Options()
-        file, _ = QFileDialog.getOpenFileName(
-            self,
-            "选择模型文件",
-            "",
-            "PyTorch Model Files (*.pth);;All Files (*)",
-            options=options,
-        )
-        if file:
-            self.checkpoint_input.setText(file)
-
     def load_model(self):
         config_file = "configs/pretrain.yml"
-        checkpoint = self.checkpoint_input.text()
+        checkpoint = self.checkpoint_input.get_selected_file()
         if not config_file or not checkpoint:
             QMessageBox.critical(self, "错误", "请提供模型文件路径")
             return
@@ -157,25 +160,48 @@ class InferenceInterface(QWidget):
         QMessageBox.information(self, "提示", "模型加载成功")
 
     def select_image_file(self, event):
-        file_dialog = QFileDialog()
-        file_dialog.setFileMode(QFileDialog.ExistingFiles)
-        file_dialog.setOption(QFileDialog.DontUseNativeDialog, True)
-        file_dialog.setNameFilters(["Image Files (*.png *.jpg *.bmp)", "All Files (*)"])
-        file_dialog.setViewMode(QFileDialog.Detail)
+        options = QFileDialog.Options()
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select a file",
+            "",
+            "Image Files (*.png *.jpg *.bmp);;All Files (*)",
+            options=options,
+        )
+        if file_path:
+            self.image_paths = [file_path]
+            pixmap = QPixmap(self.image_paths[0])
+            self.image_box.setPixmap(pixmap)
 
-        if file_dialog.exec_():
-            files = file_dialog.selectedFiles()
-            if files:
-                self.image_paths = files
-                pixmap = QPixmap(self.image_paths[0])
-                self.image_box.setPixmap(pixmap)
-
-    def recognize_image(self):
+    def recognize_audio(self):
         if not self.model:
             QMessageBox.critical(self, "错误", "请先加载模型")
             return
 
-        if not hasattr(self, "image_paths"):
+        self.audio_path = self.audio_file_selector.get_selected_file()
+        if not self.audio_path:
+            QMessageBox.critical(self, "错误", "请先选择音频")
+            return
+        print(
+            "======================DEBUG START: start audio convert======================"
+        )
+        temp_filename = f"tmp_{uuid.uuid4().hex}.png"
+        audiofile2specfile(self.audio_path, saved_path=temp_filename)
+        pixmap = QPixmap(temp_filename)
+        self.image_box.setPixmap(pixmap)
+        print(
+            "======================DEBUG  END : start audio convert======================"
+        )
+        self.recognize_image([temp_filename])
+        os.remove(temp_filename)
+
+    def recognize_image(self, image_paths=None):
+        if not self.model:
+            QMessageBox.critical(self, "错误", "请先加载模型")
+            return
+
+        image_paths = image_paths or self.image_paths
+        if not image_paths:
             QMessageBox.critical(self, "错误", "请先选择图片")
             return
 
@@ -189,8 +215,8 @@ class InferenceInterface(QWidget):
         )
 
         # Single Image Inference
-        if len(self.image_paths) == 1:
-            img = load_image(self.image_paths[0], transforms).to(self.device)
+        if len(image_paths) == 1:
+            img = load_image(image_paths[0], transforms).to(self.device)
             img = img.unsqueeze(0)
             camids = torch.tensor([0]).to(self.device)
             target_view = torch.tensor([0]).to(self.device)
@@ -207,9 +233,9 @@ class InferenceInterface(QWidget):
             predicted_label = predicted.item()
             self.result_info_widget.setText(f"类别{predicted_label}")
             self.result_time_widget.setText(f"{elapsed_time:.2f}ms")
-        else:
+        else:  # Multiple Image Inference
             results = []
-            for filename in os.listdir(self.image_paths):
+            for filename in os.listdir(image_paths):
                 if filename.endswith((".png", ".jpg", ".bmp")):
                     img_path = os.path.join(self.image_paths, filename)
                     img = load_image(img_path, transforms).to(self.device)
@@ -219,7 +245,7 @@ class InferenceInterface(QWidget):
                         output = self.model(img)
                         _, predicted = torch.max(output, 1)
                         results.append(f"{filename}: {predicted.item()}")
-            result_file = os.path.join(self.image_paths, "results.txt")
+            result_file = os.path.join(image_paths, "results.txt")
             with open(result_file, "w") as f:
                 f.write("\n".join(results))
             self.folder_result_label.setText(f"识别结果已保存到: {result_file}")

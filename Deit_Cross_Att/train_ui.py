@@ -156,8 +156,8 @@ class TrainInterface(QWidget):
 
     def run_train_script(self):
         epochs = self.epochs_spinbox.value()
-        source_file_path = self.source_file_selector.get_file_path()
-        target_file_path = self.target_file_selector.get_file_path()
+        source_file_path = self.source_file_selector.get_selected_file()
+        target_file_path = self.target_file_selector.get_selected_file()
         if not source_file_path or not target_file_path:
             QMessageBox.critical(self, "错误", "请提供源域和目标域文件路径")
             return
@@ -177,8 +177,8 @@ class TrainInterface(QWidget):
     def run_transfer_script(self):
         # Implement the transfer script logic here
         epochs = self.epochs_spinbox.value()
-        source_file_path = self.source_file_selector.get_file_path()
-        target_file_path = self.target_file_selector.get_file_path()
+        source_file_path = self.source_file_selector.get_selected_file()
+        target_file_path = self.target_file_selector.get_selected_file()
         if not source_file_path or not target_file_path:
             QMessageBox.critical(self, "错误", "请提供源域和目标域文件路径")
             return
