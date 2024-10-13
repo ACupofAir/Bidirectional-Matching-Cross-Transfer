@@ -21,7 +21,7 @@
 ## Overview
 
 ![inference](res/2024-10-13-20-19-08.png)
-![train](2024-10-13-20-26-35.png)
+![train](res/2024-10-13-20-26-35.png)
 
 ## Process
 
