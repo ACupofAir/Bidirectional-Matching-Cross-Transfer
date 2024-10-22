@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import (
     QFrame,
 )
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import QProcess, Qt
+from PyQt5.QtCore import  Qt
 from config import cfg
 from model import make_model
 from datasets.bases import load_image
