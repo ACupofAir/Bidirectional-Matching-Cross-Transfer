@@ -9,11 +9,9 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QLabel,
-    QPushButton,
     QMessageBox,
     QFileDialog,
     QFrame,
-    QLineEdit,
 )
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import QProcess, Qt
