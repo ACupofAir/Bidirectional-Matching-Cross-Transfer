@@ -157,6 +157,17 @@ class InferenceInterface(QWidget):
         self.model.load_param_finetune(checkpoint)
         self.model.to(self.device)
         self.model.eval()
+        # Warmup the model
+        dummy_input = torch.randn(1, 3, 224, 224).to(self.device)
+        camids = torch.tensor([0]).to(self.device)
+        target_view = torch.tensor([0]).to(self.device)
+        with torch.no_grad():
+            self.model(
+                dummy_input,
+                cam_label=camids,
+                view_label=target_view,
+                return_logits=True,
+            )
         QMessageBox.information(self, "提示", "模型加载成功")
 
     def select_image_file(self, event):
