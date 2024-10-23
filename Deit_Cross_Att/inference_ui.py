@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import (
     QFrame,
 )
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import  Qt
+from PyQt5.QtCore import Qt
 from config import cfg
 from model import make_model
 from datasets.bases import load_image
@@ -50,6 +50,7 @@ class InferenceInterface(QWidget):
         self.checkpoint_input = FileSelector(
             selector_text="未选择模型文件:",
             btn_text="选择",
+            default_file=r"C:\Users\june\Workspace\Bidirectional-matching-cross-transfer\logs\pretrain\deit_base\shipsear\target\transformer_best_model.pth",
             filetype="PyTorch Model Files (*.pth)",
         )
         load_model_button = AirBtn(

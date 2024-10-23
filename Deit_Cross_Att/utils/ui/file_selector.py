@@ -8,16 +8,17 @@ class FileSelector(QWidget):
     def __init__(
         self,
         selector_text="未选择文件",
+        default_file="",
         btn_text="选择",
         filetype="All Files (*)",
         height=50,
         parent=None,
     ):
         super(FileSelector, self).__init__(parent)
-        self.selected_file = None
+        self.selected_file = default_file
         self.height = height
         self.filetype = filetype
-        self.file_box_text = selector_text
+        self.file_box_text = selector_text if default_file == "" else default_file
         self.btn_text = btn_text
         self.initUI()
 
