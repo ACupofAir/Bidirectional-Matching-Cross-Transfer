@@ -2,11 +2,13 @@ import os
 from tqdm import tqdm
 
 # ! [FIXME]
-folder_path = "/mnt/e/Datasets/TwoBill/testdata/mel"  # the path contain diff dirs store diff class mel spec
-output_path = "/home/june_wsl/Workspace/Bidirectional-matching-cross-transfer/Deit_Cross_Att/data/twoBill/test_list.txt"
+folder_path = r"E:\AirFTP\Datasets\DeepShip-Enh\mel"  # the path contain diff dirs store diff class mel spec
+output_path = r"E:\AirFTP\Datasets\DeepShip-Enh\mel\deepship-enh.txt"  # the output path of the txt file
 
 
-def generate_folder_file_label(folder_path: str, output_path: str, label: str = None) -> None:
+def generate_folder_file_label(
+    folder_path: str, output_path: str, label: str = None
+) -> None:
     """Create a txt file contain the folder file and label
 
     Args:
@@ -29,7 +31,7 @@ def generate_folder_file_label(folder_path: str, output_path: str, label: str = 
 if __name__ == "__main__":
     print(folder_path)
     cls_folder_list = os.listdir(folder_path)
-    for cls_folder_basename in cls_folder_list:
+    for i, cls_folder_basename in enumerate(cls_folder_list):
         abs_folder_path = os.path.join(folder_path, cls_folder_basename)
         print(abs_folder_path)
-        generate_folder_file_label(abs_folder_path, output_path)
+        generate_folder_file_label(abs_folder_path, output_path, i)

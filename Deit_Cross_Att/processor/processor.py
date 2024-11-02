@@ -184,7 +184,7 @@ def do_train_pretrain(
                 logger.info(
                     "Classify Domain Adapatation Validation Results - Epoch: {}".format(epoch)
                 )
-                logger.info("Accuracy: {:.1%} Mean Entropy: {:.1%}".format(accuracy, mean_ent))
+                # logger.info("Accuracy: {:.1%} Mean Entropy: {:.1%}".format(accuracy, mean_ent))
                 # logger.info("Per-class accuracy: {}".format(acc))
 
                 torch.cuda.empty_cache()
@@ -222,7 +222,7 @@ def do_train_pretrain(
     if cfg.MODEL.TASK_TYPE == "classify_DA":
         accuracy, _ = evaluator.compute()
         logger.info("Classify Domain Adapatation Validation Results - Best Model")
-        logger.info("Accuracy: {:.1%}".format(accuracy))
+        # logger.info("Accuracy: {:.1%}".format(accuracy))
     else:
         cmc, mAP, _, _, _, _, _ = evaluator.compute()
         logger.info("Best Model Validation Results ")

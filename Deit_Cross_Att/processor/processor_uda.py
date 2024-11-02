@@ -633,11 +633,11 @@ def do_train_uda(
                 logger.info(
                     "Classify Domain Adapatation Validation Results - Epoch: {}".format(epoch)
                 )
-                logger.info(
-                    "Accuracy: {:.1%}, best Accuracy: {:.1%}, min Mean_entropy: {:.1}".format(
-                        accuracy, best_model_mAP, min_mean_ent
-                    )
-                )
+                # logger.info(
+                #     "Accuracy: {:.1%}, best Accuracy: {:.1%}, min Mean_entropy: {:.1}".format(
+                #         accuracy, best_model_mAP, min_mean_ent
+                #     )
+                # )
 
                 torch.cuda.empty_cache()
             else:
@@ -689,7 +689,7 @@ def do_train_uda(
     if cfg.MODEL.TASK_TYPE == "classify_DA":
         accuracy, _ = evaluator.compute()
         logger.info("Classify Domain Adapatation Validation Results - Best model")
-        logger.info("Accuracy: {:.1%}".format(accuracy))
+        # logger.info("Accuracy: {:.1%}".format(accuracy))
     else:
         cmc, mAP, _, _, _, _, _ = evaluator.compute()
         logger.info("Best Model Validation Results ")

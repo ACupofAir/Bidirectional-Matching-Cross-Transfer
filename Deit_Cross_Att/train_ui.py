@@ -65,16 +65,21 @@ class TrainInterface(QWidget):
         self.epochs_spinbox.setRange(1, 1000)  # Set range for epochs
         self.epochs_spinbox.setValue(10)  # Set default value
 
+        batchsize_label = QLabel("batchsize:")
+        self.batchsize_spinbox = QSpinBox()
+        self.batchsize_spinbox.setRange(1, 1000)  # Set range for epochs
+        self.batchsize_spinbox.setValue(32)  # Set default value
+
         self.source_file_selector = FileSelector(
             selector_text="未选择源域文件",
-            default_file=r"C:\Users\june\Workspace\Bidirectional-matching-cross-transfer\Deit_Cross_Att\data\ShipsEar2DeepShip\source_imgs_list.txt",
+            default_file=r"E:\AirFTP\Datasets\DeepShip-Enh\mel\deepship-enh.txt",
             btn_text="选择",
             filetype="txt files (*.txt);;all files (*)",
             height=40,
         )
         self.target_file_selector = FileSelector(
             selector_text="未选择目标域文件",
-            default_file=r"C:\Users\june\Workspace\Bidirectional-matching-cross-transfer\Deit_Cross_Att\data\ShipsEar2DeepShip\target_imgs_list.txt",
+            default_file=r"E:\AirFTP\Datasets\ShipsEar-Enh\mel\shipsear-enh.txt",
             btn_text="选择",
             filetype="txt files (*.txt);;all files (*)",
             height=40,
@@ -90,9 +95,14 @@ class TrainInterface(QWidget):
         epochs_layout.addWidget(epochs_label)
         epochs_layout.addWidget(self.epochs_spinbox)
 
+        batchsize_layout = QHBoxLayout()
+        batchsize_layout.addWidget(batchsize_label)
+        batchsize_layout.addWidget(self.batchsize_spinbox)
+
         # input params: model_label, epochs_layout, source_file_layout, target_file_layout
         input_params_layout.addWidget(model_label)
         input_params_layout.addLayout(epochs_layout)
+        input_params_layout.addLayout(batchsize_layout)
         input_params_layout.addWidget(self.source_file_selector)
         input_params_layout.addWidget(self.target_file_selector)
 
@@ -156,6 +166,7 @@ class TrainInterface(QWidget):
 
     def run_train_script(self):
         epochs = self.epochs_spinbox.value()
+        batchsize = self.batchsize_spinbox.value()
         source_file_path = self.source_file_selector.get_selected_file()
         target_file_path = self.target_file_selector.get_selected_file()
         if not source_file_path or not target_file_path:
@@ -168,6 +179,7 @@ class TrainInterface(QWidget):
             f'DATASETS.ROOT_TRAIN_DIR "{source_file_path}" '
             f'DATASETS.ROOT_TEST_DIR "{target_file_path}" '
             f"SOLVER.LOG_PERIOD 10 "
+            f'SOLVER.IMS_PER_BATCH {batchsize} '
             f"SOLVER.MAX_EPOCHS {epochs}"
         )
         self.elapsed_time.start()
@@ -177,6 +189,7 @@ class TrainInterface(QWidget):
     def run_transfer_script(self):
         # Implement the transfer script logic here
         epochs = self.epochs_spinbox.value()
+        batchsize = self.batchsize_spinbox.value()
         source_file_path = self.source_file_selector.get_selected_file()
         target_file_path = self.target_file_selector.get_selected_file()
         if not source_file_path or not target_file_path:
@@ -193,6 +206,7 @@ class TrainInterface(QWidget):
             f'DATASETS.ROOT_TRAIN_DIR2 "{target_file_path}" '
             f'DATASETS.ROOT_TEST_DIR "{target_file_path}" '
             f"SOLVER.LOG_PERIOD 10 "
+            f'SOLVER.IMS_PER_BATCH {batchsize} '
             f"SOLVER.MAX_EPOCHS {epochs}"
         )
         self.elapsed_time.start()
