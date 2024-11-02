@@ -67,12 +67,14 @@ class TrainInterface(QWidget):
 
         self.source_file_selector = FileSelector(
             selector_text="未选择源域文件",
+            default_file=r"C:\Users\june\Workspace\Bidirectional-matching-cross-transfer\Deit_Cross_Att\data\ShipsEar2DeepShip\source_imgs_list.txt",
             btn_text="选择",
             filetype="txt files (*.txt);;all files (*)",
             height=40,
         )
         self.target_file_selector = FileSelector(
             selector_text="未选择目标域文件",
+            default_file=r"C:\Users\june\Workspace\Bidirectional-matching-cross-transfer\Deit_Cross_Att\data\ShipsEar2DeepShip\target_imgs_list.txt",
             btn_text="选择",
             filetype="txt files (*.txt);;all files (*)",
             height=40,
@@ -222,9 +224,10 @@ class TrainInterface(QWidget):
             self.accuracy_info_box.setText(f"{acc:.2f}%")
 
     def handle_stderr(self):
-        data = self.process.readAllStandardError()
-        stderr = bytes(data).decode("utf8")
-        QMessageBox.critical(self, "错误", stderr)
+        pass
+        # data = self.process.readAllStandardError()
+        # stderr = bytes(data).decode("utf8")
+        # QMessageBox.critical(self, "错误", stderr)
 
     def process_finished(self):
         self.timer.stop()

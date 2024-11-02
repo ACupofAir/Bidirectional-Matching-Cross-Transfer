@@ -385,10 +385,10 @@ def do_train_uda(
         else:
             model.to(device)
 
-    loss1_meter = AverageMeter()
-    loss2_meter = AverageMeter()
+    loss_src_meter = AverageMeter()
+    loss_tg_meter = AverageMeter()
     loss13_meter = AverageMeter()
-    loss3_meter = AverageMeter()
+    loss_fusion_meter = AverageMeter()
     acc_meter = AverageMeter()
     acc_2_meter = AverageMeter()
     acc_2_pse_meter = AverageMeter()
@@ -415,10 +415,10 @@ def do_train_uda(
     # train
     for epoch in range(1, epochs + 1):
         start_time = time.time()
-        loss1_meter.reset()
-        loss2_meter.reset()
+        loss_src_meter.reset()
+        loss_tg_meter.reset()
         loss13_meter.reset()
-        loss3_meter.reset()
+        loss_fusion_meter.reset()
         acc_meter.reset()
         acc_2_meter.reset()
         acc_2_pse_meter.reset()
@@ -502,10 +502,10 @@ def do_train_uda(
                     img, t_img, target, cam_label=target_cam, view_label=target_view
                 )  # output: source , target , source_target_fusion
 
-                loss1 = loss_fn(self_score1, self_feat1, target, target_cam)
-                loss2 = loss_fn(score2, feat2, t_pseudo_target, target_cam)
-                loss3 = distill_loss(score_fusion, score2)
-                loss = loss2 + loss3 + loss1
+                loss_src = loss_fn(self_score1, self_feat1, target, target_cam)
+                loss_tg = loss_fn(score2, feat2, t_pseudo_target, target_cam)
+                loss_fusion = distill_loss(score_fusion, score2)
+                loss = loss_tg + loss_fusion + loss_src
 
             scaler.scale(loss).backward()
             scaler.unscale_(optimizer)
@@ -534,9 +534,9 @@ def do_train_uda(
             else:
                 acc2_pse = (score2.max(1)[1] == t_pseudo_target).float().mean()
 
-            loss1_meter.update(loss1.item(), img.shape[0])
-            loss2_meter.update(loss2.item(), img.shape[0])
-            loss3_meter.update(loss3.item(), img.shape[0])
+            loss_src_meter.update(loss_src.item(), img.shape[0])
+            loss_tg_meter.update(loss_tg.item(), img.shape[0])
+            loss_fusion_meter.update(loss_fusion.item(), img.shape[0])
             acc_meter.update(acc, 1)
             acc_2_meter.update(acc2, 1)
             acc_2_pse_meter.update(acc2_pse, 1)
@@ -544,15 +544,14 @@ def do_train_uda(
             torch.cuda.synchronize()
             if (n_iter + 1) % log_period == 0:
                 logger.info(
-                    "Epoch[{}] Iteration[{}/{}] Loss1: {:.3f}, Loss2: {:.3f}, Loss3: {:.3f},  Acc: {:.3f}, Acc2: {:.3f}, Acc2_pse: {:.3f}, Base Lr: {:.2e}".format(
+                    "Epoch[{}] Iteration[{}/{}] Loss-source: {:.3f}, Loss-target: {:.3f}, Loss: {:.3f},  Acc-source: {:.3f},  Acc: {:.3f}, Base Lr: {:.2e}".format(
                         epoch,
                         (n_iter + 1),
                         len(train_loader),
-                        loss1_meter.avg,
-                        loss2_meter.avg,
-                        loss3_meter.avg,
+                        loss_src_meter.avg,
+                        loss_tg_meter.avg,
+                        loss_fusion_meter.avg,
                         acc_meter.avg,
-                        acc_2_meter.avg,
                         acc_2_pse_meter.avg,
                         scheduler._get_lr(epoch)[0],
                     )
