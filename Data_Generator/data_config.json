@@ -8,8 +8,8 @@
         "audio_path": "/mnt/e/Datasets/ShipsEar/ShipsEar_audio"
     },
     "DeepShip": {
-        "directory": "/mnt/e/Datasets/DeepShip/",
-        "audio_path": "/mnt/e/Datasets/DeepShip/DeepShip_audio"
+        "directory": "E:\\AirFTP\\Datasets\\DeepShip-Enh",
+        "audio_path": "E:\\AirFTP\\Datasets\\DeepShip-Enh\\DeepShip_audio"
     },
     "TwoBill": {
         "directory": "/mnt/e/Datasets/TwoBill/traindata",

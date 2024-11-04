@@ -9,16 +9,18 @@ from utils import audio2specfile, split_frame_by_file
 
 # * get all need split file name
 # ! [FIXME]: change to the name you needed which should be a key value in data_config.json
-dataset_name = "TwoBillTest"
-with open("../data_config.json", "r") as json_file:
+data_config_path = r"C:\Users\june\Workspace\Bidirectional-matching-cross-transfer\Data_Generator\data_config.json"
+dataset_name = "DeepShip"
+with open(data_config_path, "r") as json_file:
     data = json.load(json_file)
 dataset_directory = data[dataset_name]["directory"]
 dataset_audio_directory = data[dataset_name]["audio_path"]
 method = "mel"
+frame_size = 2.5
 
 audio_class_names = os.listdir(dataset_audio_directory)
 
-dataset_img_dir = os.path.join(dataset_directory, method)
+dataset_img_dir = os.path.join(dataset_directory, method + "-" + str(frame_size))
 if not os.path.exists(dataset_img_dir):
     os.mkdir(dataset_img_dir)
 # %%
@@ -48,7 +50,9 @@ with tqdm(
                 split_num = 0
                 audio_file_path = os.path.join(audio_class_path, file_name)
                 splited_frames, sr = split_frame_by_file(
-                    frame_size=5, frame_shift=2.5, audio_file=audio_file_path
+                    frame_size=frame_size,
+                    frame_shift=frame_size / 2,
+                    audio_file=audio_file_path,
                 )
                 with tqdm(
                     total=len(splited_frames),
@@ -57,8 +61,11 @@ with tqdm(
                 ) as frame_bar:
                     # convert each frame to spec
                     for frame in splited_frames:
-                        saved_path = os.path.join(dataset_img_dir, class_name, str(frame_idx) + ".png")
+                        saved_path = os.path.join(
+                            dataset_img_dir, class_name, str(frame_idx) + ".png"
+                        )
                         frame_idx += 1
+
                         audio2specfile(audio_data=frame, sr=sr, saved_path=saved_path)
                         frame_bar.update(1)
 

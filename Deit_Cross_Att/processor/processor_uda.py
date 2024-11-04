@@ -586,7 +586,7 @@ def do_train_uda(
                     os.path.join(cfg.OUTPUT_DIR, cfg.MODEL.NAME + "_{}.pth".format(epoch)),
                 )
 
-        if epoch % eval_period == 0:
+        """ if epoch % eval_period == 0:
             if cfg.MODEL.DIST_TRAIN:
                 if dist.get_rank() == 0:
                     model.eval()
@@ -660,7 +660,7 @@ def do_train_uda(
                 logger.info("mAP: {:.1%}".format(mAP))
                 for r in [1, 5, 10]:
                     logger.info("CMC curve, Rank-{:<3}:{:.1%}".format(r, cmc[r - 1]))
-                torch.cuda.empty_cache()
+                torch.cuda.empty_cache() """
 
     # inference
     print("best model preformance is {}".format(best_model_mAP))
