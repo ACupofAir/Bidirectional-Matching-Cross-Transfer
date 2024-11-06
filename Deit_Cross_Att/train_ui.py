@@ -72,7 +72,7 @@ class TrainInterface(QWidget):
 
         self.source_file_selector = FileSelector(
             selector_text="未选择源域文件",
-            default_file=r"E:\AirFTP\Datasets\DeepShip-Enh\mel\deepship-enh.txt",
+            default_file=r"E:\AirFTP\Datasets\DeepShip-Enh\mel-2.5\deepship-enh-2.5.txt",
             btn_text="选择",
             filetype="txt files (*.txt);;all files (*)",
             height=40,
@@ -168,18 +168,19 @@ class TrainInterface(QWidget):
         epochs = self.epochs_spinbox.value()
         batchsize = self.batchsize_spinbox.value()
         source_file_path = self.source_file_selector.get_selected_file()
-        target_file_path = self.target_file_selector.get_selected_file()
-        if not source_file_path or not target_file_path:
-            QMessageBox.critical(self, "错误", "请提供源域和目标域文件路径")
+        source_file_name = os.path.splitext(os.path.basename(source_file_path))[0]
+        # target_file_path = self.target_file_selector.get_selected_file()
+        if not source_file_path:
+            QMessageBox.critical(self, "错误", "请提供源域文件路径")
             return
 
         cmd = (
             f"python train.py  --config_file configs/pretrain.yml DATASETS.NAMES Shipsear "
-            f'OUTPUT_DIR "../logs/pretrain/deit_base/shipsear/target" '
+            f'OUTPUT_DIR "../logs/pretrain/{source_file_name}/bs{batchsize}-epoch{epochs}" '
             f'DATASETS.ROOT_TRAIN_DIR "{source_file_path}" '
-            f'DATASETS.ROOT_TEST_DIR "{target_file_path}" '
+            f'DATASETS.ROOT_TEST_DIR "{source_file_path}" '
             f"SOLVER.LOG_PERIOD 10 "
-            f'SOLVER.IMS_PER_BATCH {batchsize} '
+            f"SOLVER.IMS_PER_BATCH {batchsize} "
             f"SOLVER.MAX_EPOCHS {epochs}"
         )
         self.elapsed_time.start()
@@ -191,7 +192,9 @@ class TrainInterface(QWidget):
         epochs = self.epochs_spinbox.value()
         batchsize = self.batchsize_spinbox.value()
         source_file_path = self.source_file_selector.get_selected_file()
+        source_file_name = os.path.splitext(os.path.basename(source_file_path))[0]
         target_file_path = self.target_file_selector.get_selected_file()
+        target_file_name = os.path.splitext(os.path.basename(target_file_path))[0]
         if not source_file_path or not target_file_path:
             QMessageBox.critical(self, "错误", "请提供源域和目标域文件路径")
             return
@@ -200,13 +203,13 @@ class TrainInterface(QWidget):
             f"python train.py  --config_file configs/uda.yml "
             f"DATASETS.NAMES Shipsear "
             f"DATASETS.NAMES2 Shipsear "
-            f'OUTPUT_DIR "../logs/pretrain/deit_base/shipsear/target" '
             f'MODEL.PRETRAIN_PATH "../logs/pretrain/deit_base/shipsear/target/transformer_10.pth" '
+            f'OUTPUT_DIR "../logs/uda/{source_file_name}-to-{target_file_name}/bs{batchsize}-epoch{epochs}" '
             f'DATASETS.ROOT_TRAIN_DIR "{source_file_path}" '
             f'DATASETS.ROOT_TRAIN_DIR2 "{target_file_path}" '
             f'DATASETS.ROOT_TEST_DIR "{target_file_path}" '
             f"SOLVER.LOG_PERIOD 10 "
-            f'SOLVER.IMS_PER_BATCH {batchsize} '
+            f"SOLVER.IMS_PER_BATCH {batchsize} "
             f"SOLVER.MAX_EPOCHS {epochs}"
         )
         self.elapsed_time.start()

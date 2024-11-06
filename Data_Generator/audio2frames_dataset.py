@@ -16,12 +16,12 @@ with open(data_config_path, "r") as json_file:
     data = json.load(json_file)
 dataset_directory = data[dataset_name]["directory"]
 dataset_audio_directory = data[dataset_name]["audio_path"]
-frame_size = 2.5
+frame_size = 10
 
 audio_class_names = os.listdir(dataset_audio_directory)
 dataset_audio_dir = os.path.join(dataset_directory, "audio-" + str(frame_size))
 if not os.path.exists(dataset_audio_dir):
-    os.mkdir(dataset_audio_dir)
+    os.makedirs(dataset_audio_dir)
 # %%
 # * split audio to frames
 with tqdm(
@@ -48,6 +48,10 @@ with tqdm(
             for file_name in class_folder_list:
                 split_num = 0
                 audio_file_path = os.path.join(audio_class_path, file_name)
+                # Check if the audio file length is less than the frame size
+                with sf.SoundFile(audio_file_path) as audio_file:
+                    if len(audio_file) < frame_size * audio_file.samplerate:
+                        continue
                 splited_frames, sr = split_frame_by_file(
                     frame_size=frame_size,
                     frame_shift=frame_size / 2,

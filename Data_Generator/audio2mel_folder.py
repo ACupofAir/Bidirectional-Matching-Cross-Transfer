@@ -4,8 +4,8 @@ from utils import audiofile2specfile
 from multiprocessing import Pool
 from process_audio2mel import process_audio2mel
 
-audio_folder_path = r"E:\AirFTP\Datasets\DeepShip-Enh\audio-2.5\Cargo"
-mel_folder_path = r"E:\AirFTP\Datasets\DeepShip-Enh\mel-2.5\Cargo"
+audio_folder_path = r"E:\AirFTP\Datasets\DeepShip-Enh\audio-10\Tug"
+mel_folder_path = r"E:\AirFTP\Datasets\DeepShip-Enh\mel-10\Tug"
 process_num = 8
 
 if __name__ == "__main__":
