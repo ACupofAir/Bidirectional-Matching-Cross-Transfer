@@ -2,8 +2,9 @@ import os
 from tqdm import tqdm
 
 # ! [FIXME]
-folder_path = r"E:\AirFTP\Datasets\DeepShip-Enh\mel-10"  # the path contain diff dirs store diff class mel spec
-output_path = r"E:\AirFTP\Datasets\DeepShip-Enh\mel-10\deepship-enh.txt"  # the output path of the txt file
+frame_size = 5
+folder_path = f"E:\\AirFTP\\Datasets\\DeepShip-Enh\\mel-{frame_size}"
+output_path = f"E:\\AirFTP\\Datasets\\DeepShip-Enh\\mel-{frame_size}\deepship-enh-{frame_size}.txt"
 
 
 def generate_folder_file_label(
