@@ -23,7 +23,7 @@ def audio2spectrogram(audio_data: np.array, sr: int, method: str = 'mel') -> Non
     plt.title(f'sample_dots: {len(audio_data)}, sample_rate: {sr}')
 
 
-def audiofile2specfile(audio_path: str, method='mel', saved_path=''):
+def audiofile2specfile(audio_path: str, method='mel', saved_path='', show_legend=False):
     """convert audio file to spectrogram use different methods, and save the spectrogram file to 
     `saved_path`
 
@@ -40,7 +40,13 @@ def audiofile2specfile(audio_path: str, method='mel', saved_path=''):
     y, sr = librosa.load(audio_path)
 
     spectrogram = librosa.feature.melspectrogram(y=y, sr=sr)
-    librosa.display.specshow(librosa.power_to_db(spectrogram, ref=np.max))
+    if show_legend:
+        librosa.display.specshow(librosa.power_to_db(spectrogram, ref=np.max),
+                                    y_axis='mel',
+                                    x_axis='time')
+        plt.colorbar(format='%+2.0f dB')
+    else:
+        librosa.display.specshow(librosa.power_to_db(spectrogram, ref=np.max))
     if not saved_path:
         audio_file_name = os.path.basename(audio_path)
         saved_path = os.path.splitext(audio_file_name)[0] + ".png"

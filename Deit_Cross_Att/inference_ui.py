@@ -50,7 +50,7 @@ class InferenceInterface(QWidget):
         self.checkpoint_input = FileSelector(
             selector_text="未选择模型文件:",
             btn_text="选择",
-            default_file=r"C:\Users\june\Workspace\Bidirectional-matching-cross-transfer\logs\pretrain\deit_base\shipsear\target\transformer_best_model.pth",
+            default_file=r"C:\Users\ASUS\junwang\Bidirectional-matching-cross-transfer\logs\uda\shipsear-10-to-deepship-2.5\bs8-epoch10\transformer_best_model.pth",
             filetype="PyTorch Model Files (*.pth)",
         )
         load_model_button = AirBtn(
@@ -152,7 +152,7 @@ class InferenceInterface(QWidget):
         cfg.freeze()
         os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
-        self.model = make_model(cfg, num_class=4, camera_num=1, view_num=1)
+        self.model = make_model(cfg, num_class=5, camera_num=1, view_num=1)
         self.model.load_param_finetune(checkpoint)
         self.model.to(self.device)
         self.model.eval()
@@ -193,11 +193,11 @@ class InferenceInterface(QWidget):
             QMessageBox.critical(self, "错误", "请先选择音频")
             return
         temp_filename = f"tmp_{uuid.uuid4().hex}.png"
-        audiofile2specfile(self.audio_path, saved_path=temp_filename)
+        audiofile2specfile(self.audio_path, saved_path=temp_filename, show_legend=True)
         pixmap = QPixmap(temp_filename)
         self.image_box.setPixmap(pixmap)
         self.recognize_image([temp_filename])
-        os.remove(temp_filename)
+        # os.remove(temp_filename)
 
     def recognize_image(self, image_paths=None):
         if not self.model:
@@ -259,7 +259,7 @@ class InferenceInterface(QWidget):
 
 if __name__ == "__main__":
     os.chdir(
-        r"C:\Users\june\Workspace\Bidirectional-matching-cross-transfer\Deit_Cross_Att"
+        r"C:\Users\ASUS\junwang\Bidirectional-matching-cross-transfer\Deit_Cross_Att"
     )
     app = QApplication(sys.argv)
     main_window = InferenceInterface()

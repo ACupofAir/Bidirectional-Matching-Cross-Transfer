@@ -4,11 +4,11 @@ from utils import audiofile2specfile
 from multiprocessing import Pool
 from process_audio2mel import process_audio2mel
 
-frame_size = 10
+frame_size = 5
 process_num = 8
 class_name = ["Cargo", "Passengership", "Propeller", "Tanker", "Tug"]
-audio_folder_path = f"E:\\AirFTP\\Datasets\\DeepShip-Enh\\audio-{frame_size}"
-mel_folder_path = f"E:\\AirFTP\\Datasets\\DeepShip-Enh\\mel-{frame_size}"
+audio_folder_path = f"C:\\Users\\ASUS\\Dataset\\deepship\\audio-{frame_size}"
+mel_folder_path = f"C:\\Users\\ASUS\\Dataset\\deepship\\mel-{frame_size}"
 
 
 def audio2mel_folder(audio_folder_path, mel_folder_path, process_num):

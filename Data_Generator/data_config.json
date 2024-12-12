@@ -4,12 +4,12 @@
         "audio_path": "/mnt/e/Datasets/TestDateset_BMCT/Testdata_audio"
     },
     "ShipsEar": {
-        "directory": "/mnt/e/Datasets/ShipsEar/",
-        "audio_path": "/mnt/e/Datasets/ShipsEar/ShipsEar_audio"
+        "directory": "C:\\Users\\ASUS\\Dataset\\ShipsEar_audio",
+        "audio_path": "C:\\Users\\ASUS\\Dataset\\ShipsEar_audio\\org"
     },
     "DeepShip": {
-        "directory": "E:\\AirFTP\\Datasets\\DeepShip-Org",
-        "audio_path": "E:\\AirFTP\\Datasets\\DeepShip-Org\\audio-raw"
+        "directory": "C:\\Users\\ASUS\\Dataset\\deepship",
+        "audio_path": "C:\\Users\\ASUS\\Dataset\\deepship\\audio-raw"
     },
     "TwoBill": {
         "directory": "/mnt/e/Datasets/TwoBill/traindata",

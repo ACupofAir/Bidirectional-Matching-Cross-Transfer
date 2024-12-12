@@ -34,6 +34,7 @@ class TrainInterface(QWidget):
 
         self.source_file_path = None
         self.target_file_path = None
+        
 
         self.initUI()
 
@@ -49,6 +50,7 @@ class TrainInterface(QWidget):
             width,
             height,
         )
+
 
         # Layouts
         main_layout = QVBoxLayout()
@@ -68,18 +70,18 @@ class TrainInterface(QWidget):
         batchsize_label = QLabel("batchsize:")
         self.batchsize_spinbox = QSpinBox()
         self.batchsize_spinbox.setRange(1, 1000)  # Set range for epochs
-        self.batchsize_spinbox.setValue(32)  # Set default value
+        self.batchsize_spinbox.setValue(8)  # Set default value
 
         self.source_file_selector = FileSelector(
             selector_text="未选择源域文件",
-            default_file=r"E:\AirFTP\Datasets\DeepShip-Enh\mel-2.5\deepship-enh-2.5.txt",
+            default_file=r"C:\Users\ASUS\Dataset\shipsear\mel\shipsear-10.txt",
             btn_text="选择",
             filetype="txt files (*.txt);;all files (*)",
             height=40,
         )
         self.target_file_selector = FileSelector(
             selector_text="未选择目标域文件",
-            default_file=r"E:\AirFTP\Datasets\ShipsEar-Enh\mel\shipsear-enh.txt",
+            default_file= r"C:\Users\ASUS\Dataset\deepship\mel-2.5\deepship-2.5.txt",
             btn_text="选择",
             filetype="txt files (*.txt);;all files (*)",
             height=40,
@@ -212,6 +214,10 @@ class TrainInterface(QWidget):
             f"SOLVER.IMS_PER_BATCH {batchsize} "
             f"SOLVER.MAX_EPOCHS {epochs}"
         )
+        # run script
+        """
+            python train.py  --config_file configs/uda.yml DATASETS.NAMES Shipsear DATASETS.NAMES2 Shipsear MODEL.PRETRAIN_PATH "../logs/pretrain/deit_base/shipsear/target/transformer_10.pth" OUTPUT_DIR "../logs/uda/shipsear2deepship/bs32-epoch20" DATASETS.ROOT_TRAIN_DIR "C:\\Users\\ASUS\junwang\\dataset\\shipsear\\mel\\shipsear-10.txt" DATASETS.ROOT_TRAIN_DIR2 "C:\\Users\\ASUS\\Dataset\\deepship\\mel-2.5\\deepship-2.5.txt" DATASETS.ROOT_TEST_DIR "C:\\Users\\ASUS\\Dataset\\deepship\\mel-2.5\\deepship-2.5.txt" SOLVER.LOG_PERIOD 10 SOLVER.IMS_PER_BATCH 16 SOLVER.MAX_EPOCHS 20
+        """
         self.elapsed_time.start()
         self.timer.start(1000)  # Update every second
         self.process.start(cmd)
@@ -238,7 +244,8 @@ class TrainInterface(QWidget):
             self.loss_data.append(loss)
             self.acc_data.append(acc)
             self.update_plot()
-            self.accuracy_info_box.setText(f"{acc:.2f}%")
+            best_acc = max(self.acc_data)
+            self.accuracy_info_box.setText(f"{best_acc:.2f}%")
 
     def handle_stderr(self):
         pass
@@ -262,7 +269,7 @@ class TrainInterface(QWidget):
 
 if __name__ == "__main__":
     os.chdir(
-        r"C:\Users\june\Workspace\Bidirectional-matching-cross-transfer\Deit_Cross_Att"
+        r"C:\Users\ASUS\junwang\Bidirectional-matching-cross-transfer\Deit_Cross_Att"
     )
     app = QApplication(sys.argv)
     main_window = TrainInterface()

@@ -3,9 +3,10 @@ from tqdm import tqdm
 
 # ! [FIXME]
 frame_size = 5
-folder_path = f"E:\\AirFTP\\Datasets\\DeepShip-Enh\\mel-{frame_size}"
-output_path = f"E:\\AirFTP\\Datasets\\DeepShip-Enh\\mel-{frame_size}\deepship-enh-{frame_size}.txt"
-
+# folder_path = f"C:\\Users\\ASUS\\Desktop\\dataset\\mel-5h36m-frame{frame_size}"
+# output_path = f"C:\\Users\\ASUS\\Desktop\\dataset\\mel-5h36m-frame{frame_size}\\deepship-5h36m-frame{frame_size}.txt"
+folder_path = rf"C:\Users\ASUS\Dataset\deepship\mel-{frame_size}"
+output_path = rf"C:\Users\ASUS\Dataset\deepship\mel-{frame_size}\deepship-{frame_size}.txt"
 
 def generate_folder_file_label(
     folder_path: str, output_path: str, label: str = None

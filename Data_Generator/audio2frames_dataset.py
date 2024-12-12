@@ -10,13 +10,13 @@ from utils import split_frame_by_file
 
 # * get all need split file name
 # ! [FIXME]: change to the name you needed which should be a key value in data_config.json
-data_config_path = r"C:\Users\june\Workspace\Bidirectional-matching-cross-transfer\Data_Generator\data_config.json"
+data_config_path = r"C:\Users\ASUS\junwang\Bidirectional-matching-cross-transfer\Data_Generator\data_config.json"
 dataset_name = "DeepShip"
+frame_size = 5
 with open(data_config_path, "r") as json_file:
     data = json.load(json_file)
 dataset_directory = data[dataset_name]["directory"]
 dataset_audio_directory = data[dataset_name]["audio_path"]
-frame_size = 10
 
 audio_class_names = os.listdir(dataset_audio_directory)
 dataset_audio_dir = os.path.join(dataset_directory, "audio-" + str(frame_size))
